@@ -22,7 +22,6 @@ wss.on('listening', function listening () {
 
 wss.on('connection', function connection (ws, req) {
   const query = url.parse(req.url, true).query
-  console.log(query.name)
   const name = query.name || uuid()
 
   console.log(`${name} is opened.`)
