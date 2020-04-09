@@ -46,5 +46,9 @@ wss.on('connection', function connection (ws, req) {
     console.log(`${name} is closed.`)
   })
 
-  ws.send(`connected with id ${name}`)
+  ws.send(JSON.stringify({
+    event: 'connected',
+    data: `connected with id ${name}`,
+    from: 'server'
+  }))
 })
