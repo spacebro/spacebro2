@@ -6,6 +6,7 @@ const settings = standardSettings.getSettings()
 
 const host = settings.host || "127.0.0.1"
 const port = settings.port || 9375
+const selfBroadcast = settings.selfBroadcast || false
 
 const wss = new WebSocket.Server({
   host,
@@ -18,8 +19,14 @@ wss.on('listening', function listening () {
 })
 
 wss.on('connection', function connection (ws) {
-  ws.on('message', function incoming (message) {
-    console.log('received: %s', message)
+  ws.on('message', function incoming (data) {
+    console.log('received: %s', data)
+
+    wss.clients.forEach((client) => {
+      if ((client !== ws || selfBroadcast) && client.readyState === WebSocket.OPEN) {
+        client.send(data)
+      }
+    })
   })
 
   ws.send('from server')
