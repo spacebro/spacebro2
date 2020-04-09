@@ -26,12 +26,18 @@ wss.on('connection', function connection (ws, req) {
 
   console.log(`${name} is opened.`)
 
-  ws.on('message', function incoming (data) {
-    console.log(`${name} sent ${data}`)
+  ws.on('message', function incoming (raw) {
+    const data = JSON.parse(raw)
+    console.log(`received ${data} from ${name}`)
 
     wss.clients.forEach((client) => {
       if ((client !== ws || selfBroadcast) && client.readyState === WebSocket.OPEN) {
-        client.send(data)
+        try {
+          const payload = JSON.stringify({ ...data, from: name })
+          client.send(payload)
+        } catch (e) {
+          console.log(e)
+        }
       }
     })
   })
