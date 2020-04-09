@@ -1,3 +1,3 @@
-# spacebro2
+# spacebro2-server
 
 > building the new spacebro
