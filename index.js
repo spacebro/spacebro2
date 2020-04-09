@@ -1,8 +1,10 @@
 'use strict'
 
+const url = require('url')
 const WebSocket = require('ws')
 const standardSettings = require('standard-settings')
 const settings = standardSettings.getSettings()
+const { v1: uuid } = require('uuid')
 
 const host = settings.host || "127.0.0.1"
 const port = settings.port || 9375
@@ -18,9 +20,15 @@ wss.on('listening', function listening () {
   console.log(`spacebro listening on ws://${wss.options.host}:${wss.options.port}...`)
 })
 
-wss.on('connection', function connection (ws) {
+wss.on('connection', function connection (ws, req) {
+  const query = url.parse(req.url, true).query
+  console.log(query.name)
+  const name = query.name || uuid()
+
+  console.log(`${name} is opened.`)
+
   ws.on('message', function incoming (data) {
-    console.log('received: %s', data)
+    console.log(`${name} sent ${data}`)
 
     wss.clients.forEach((client) => {
       if ((client !== ws || selfBroadcast) && client.readyState === WebSocket.OPEN) {
@@ -29,5 +37,9 @@ wss.on('connection', function connection (ws) {
     })
   })
 
-  ws.send('from server')
+  ws.on('close', function closing (code) {
+    console.log(`${name} is closed.`)
+  })
+
+  ws.send(`connected with id ${name}`)
 })
