@@ -22,33 +22,44 @@ wss.on('listening', function listening () {
 
 wss.on('connection', function connection (ws, req) {
   const query = url.parse(req.url, true).query
-  const name = query.name || uuid()
+  ws.name = query.name || uuid()
 
-  console.log(`${name} is opened.`)
+  console.log(`${ws.name} is opened.`)
 
   ws.on('message', function incoming (raw) {
     const data = JSON.parse(raw)
-    console.log(`received ${data} from ${name}`)
+    console.log(`received ${data} from ${ws.name} to ${data.to || 'default'}`)
 
-    wss.clients.forEach((client) => {
-      if ((client !== ws || selfBroadcast) && client.readyState === WebSocket.OPEN) {
-        try {
-          const payload = JSON.stringify({ ...data, from: name })
-          client.send(payload)
-        } catch (e) {
-          console.log(e)
+    if (data.to && data.to !== 'default') {
+      for (const client of wss.clients) {
+        if (client.name === data.to) {
+          send(client, data, ws.name)
         }
       }
-    })
+    } else {
+      wss.clients.forEach((client) => {
+        if ((client !== ws || selfBroadcast)) {
+          send(client, data, ws.name)
+        }
+      })
+    }
+
   })
 
   ws.on('close', function closing (code) {
-    console.log(`${name} is closed.`)
+    console.log(`${ws.name} is closed.`)
   })
 
-  ws.send(JSON.stringify({
-    event: 'connected',
-    data: `connected with id ${name}`,
-    from: 'server'
-  }))
+  send(ws, { event: 'connected', data: `connected with id ${ws.name}` }, 'server')
 })
+
+function send (client, data, name) {
+  if (client.readyState === WebSocket.OPEN) {
+    try {
+      const payload = JSON.stringify({ ...data, from: name })
+      client.send(payload)
+    } catch (e) {
+      console.log(e)
+    }
+  }
+}
