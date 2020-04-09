@@ -13,6 +13,10 @@ const wss = new WebSocket.Server({
   perMessageDeflate: false
 })
 
+wss.on('listening', function listening () {
+  console.log(`spacebro listening on ws://${wss.options.host}:${wss.options.port}...`)
+})
+
 wss.on('connection', function connection (ws) {
   ws.on('message', function incoming (message) {
     console.log('received: %s', message)
