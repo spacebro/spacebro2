@@ -63,3 +63,11 @@ function send (client, data, name) {
     }
   }
 }
+
+process.on('SIGINT', onAppExit)
+process.on('SIGQUIT', onAppExit)
+process.on('SIGTERM', onAppExit)
+
+function onAppExit () {
+  wss.close()
+}
