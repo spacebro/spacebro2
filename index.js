@@ -20,6 +20,12 @@ wss.on('listening', function listening () {
   console.log(`spacebro listening on ws://${wss.options.host}:${wss.options.port}...`)
 })
 
+wss.on('close', function close () {
+  for(const client of wss.clients) {
+    client.close()
+  }
+})
+
 wss.on('connection', function connection (ws, req) {
   const query = url.parse(req.url, true).query
   ws.name = query.name || uuid()
