@@ -35,7 +35,10 @@ wss.on('connection', function connection (ws, req) {
   ws.on('message', function incoming (raw) {
     const data = JSON.parse(raw)
     console.log(`received event from ${ws.name} to ${data.to || 'default'}`)
-    console.log(data)
+
+    const nameLog = data.eventName || '(no eventName prop found)'
+    const propsLog = data.hasOwnProperty('data') ? `has props {${Object.keys(data.data)}}` : ''
+    console.log(`event "${nameLog}" ${propsLog}`)
 
     if (data.to && data.to !== 'default') {
       for (const client of wss.clients) {
@@ -75,6 +78,7 @@ process.on('SIGINT', onAppExit)
 process.on('SIGQUIT', onAppExit)
 process.on('SIGTERM', onAppExit)
 
-function onAppExit () {
-  wss.close()
+async function onAppExit () {
+  console.log('\nsending close event.')
+  await wss.close()
 }
