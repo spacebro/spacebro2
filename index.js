@@ -34,7 +34,8 @@ wss.on('connection', function connection (ws, req) {
 
   ws.on('message', function incoming (raw) {
     const data = JSON.parse(raw)
-    console.log(`received ${data} from ${ws.name} to ${data.to || 'default'}`)
+    console.log(`received event from ${ws.name} to ${data.to || 'default'}`)
+    console.log(data)
 
     if (data.to && data.to !== 'default') {
       for (const client of wss.clients) {
