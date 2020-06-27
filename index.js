@@ -6,12 +6,10 @@ const standardSettings = require('standard-settings')
 const settings = standardSettings.getSettings()
 const { v1: uuid } = require('uuid')
 
-const host = settings.host || "127.0.0.1"
 const port = settings.port || 9375
 const selfBroadcast = settings.selfBroadcast || false
 
 const wss = new WebSocket.Server({
-  host,
   port,
   perMessageDeflate: false
 })
