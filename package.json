@@ -8,6 +8,7 @@
   "author": "hugohil",
   "license": "MIT",
   "dependencies": {
+    "ip": "^1.1.5",
     "standard-settings": "^2.0.3",
     "uuid": "^7.0.3",
     "ws": "^7.2.3"

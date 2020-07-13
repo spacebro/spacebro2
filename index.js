@@ -5,6 +5,7 @@ const WebSocket = require('ws')
 const standardSettings = require('standard-settings')
 const settings = standardSettings.getSettings()
 const { v1: uuid } = require('uuid')
+const ip = require('ip')
 
 const port = settings.port || 9375
 const selfBroadcast = settings.selfBroadcast || false
@@ -15,11 +16,11 @@ const wss = new WebSocket.Server({
 })
 
 wss.on('listening', function listening () {
-  console.log(`spacebro listening on ws://${wss.options.host}:${wss.options.port}...`)
+  console.log(`spacebro listening on ws://${ip.address()}:${wss.options.port} ...`)
 })
 
 wss.on('close', function close () {
-  for(const client of wss.clients) {
+  for (const client of wss.clients) {
     client.close()
   }
 })
@@ -51,7 +52,6 @@ wss.on('connection', function connection (ws, req) {
         }
       })
     }
-
   })
 
   ws.on('close', function closing (code) {
