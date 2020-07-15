@@ -32,9 +32,20 @@ wss.on('connection', function connection (ws, req) {
   console.log(`${ws.name} is opened.`)
 
   ws.on('message', function incoming (raw) {
-    const data = JSON.parse(raw)
-    console.log(`received event from ${ws.name} to ${data.to || 'default'}`)
+    let data = {}
 
+    try {
+      if (typeof raw === 'string' ) {
+        data.eventName = raw
+      } else {
+        console.log(`received event from ${ws.name} to ${data.to || 'default'}`)
+        data = JSON.parse(raw)    
+      }
+    } catch (err) {
+      console.error('malformed JSON')
+      console.log(raw)
+    }
+    
     const nameLog = data.eventName || '(no eventName prop found)'
     const propsLog = data.hasOwnProperty('data') ? `has props {${Object.keys(data.data)}}` : ''
     console.log(`event "${nameLog}" ${propsLog}`)
