@@ -1,6 +1,5 @@
 'use strict'
 
-const url = require('url')
 const WebSocket = require('ws')
 const standardSettings = require('standard-settings')
 const settings = standardSettings.getSettings()
@@ -26,8 +25,13 @@ wss.on('close', function close () {
 })
 
 wss.on('connection', function connection (ws, req) {
-  const query = url.parse(req.url, true).query
-  ws.name = query.name || uuid()
+  // console.log(req.url)
+  // console.log(req.headers.host)
+  // console.log(req.connection)
+  // const query = url.parse(req.url, true).query
+  const query = new URL(req.url, `ws://${req.headers.host}/`).searchParams
+  // console.log(query)
+  ws.name = query.get('name') || uuid()
 
   console.log(`${ws.name} is opened.`)
 
@@ -35,17 +39,17 @@ wss.on('connection', function connection (ws, req) {
     let data = {}
 
     try {
-      if (typeof raw === 'string' ) {
-        data.eventName = raw
-      } else {
-        console.log(`received event from ${ws.name} to ${data.to || 'default'}`)
-        data = JSON.parse(raw)    
-      }
+      data = JSON.parse(raw)
+      console.log(`received event from ${ws.name} to ${data.to || 'default'}`)
     } catch (err) {
       console.error('malformed JSON')
+      if (typeof raw === 'string') {
+        console.log('try to use the raw event as EventName')
+        data.eventName = raw
+      }
       console.log(raw)
     }
-    
+
     const nameLog = data.eventName || '(no eventName prop found)'
     const propsLog = data.hasOwnProperty('data') ? `has props {${Object.keys(data.data)}}` : ''
     console.log(`event "${nameLog}" ${propsLog}`)
